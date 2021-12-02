@@ -28,39 +28,47 @@ def buildStories():
     newstories_ids = getNewStories()
 
     for story_id in newstories_ids:
-        item = session.get(
-            'https://hacker-news.firebaseio.com/v0/item/{id}.json'.format(id=story_id))
 
-        logging.info("Latency on {URL}: {latency}".format(
-            URL='https://hacker-news.firebaseio.com/v0/item/{id}.json'.format(id=story_id), latency=item.elapsed))
+        try:
+            item = session.get(
+                'https://hacker-news.firebaseio.com/v0/item/{id}.json'.format(id=story_id))
 
-        item = item.json()
-        username = item["by"]
-        number_of_comments = item["descendants"]
-        title = item["title"]
+            server.app.logger.info("Latency on {URL}: {latency}".format(
+                URL='https://hacker-news.firebaseio.com/v0/item/{id}.json'.format(id=story_id), latency=item.elapsed))
 
-        user = session.get(
-            'https://hacker-news.firebaseio.com/v0/user/{id}.json'.format(id=username))
+            item = item.json()
+            username = item["by"]
+            number_of_comments = item["descendants"]
+            title = item["title"]
 
-        logging.info("Latency on {URL}: {latency}".format(
-            URL='https://hacker-news.firebaseio.com/v0/user/{id}.json'.format(id=username), latency=user.elapsed))
+            user = session.get(
+                'https://hacker-news.firebaseio.com/v0/user/{id}.json'.format(id=username))
 
-        user = user.json()
-        user_karma = user["karma"]
+            server.app.logger.info("Latency on {URL}: {latency}".format(
+                URL='https://hacker-news.firebaseio.com/v0/user/{id}.json'.format(id=username), latency=user.elapsed))
 
-        if user_karma > MIN_USER_KARMA and count < MAX_RESULTS:
+            user = user.json()
+            user_karma = user["karma"]
 
-            if len(position) == 0:
-                position.append([number_of_comments, count])
-            else:
-                position = insertionSort(position, number_of_comments, count)
+            if user_karma > MIN_USER_KARMA and count < MAX_RESULTS:
 
-            count += 1
+                if len(position) == 0:
+                    position.append([number_of_comments, count])
+                else:
+                    position = insertionSort(
+                        position, number_of_comments, count)
 
-            story = {"author": username, "karma": user_karma,
-                     "comments": number_of_comments, "title": title, "position": None}
-            stories["stories"].append(story)
+                count += 1
 
+                story = {"author": username, "karma": user_karma,
+                         "comments": number_of_comments, "title": title, "position": None}
+                stories["stories"].append(story)
+
+        except TypeError as e:
+            server.app.logger.error(e)
+            continue
+        except:
+            server.app.logger.error("Fatal error.")
     fixPositions(position)
 
 
@@ -68,10 +76,10 @@ def getNewStories():
     newstories_ids = session.get(
         'https://hacker-news.firebaseio.com//v0/newstories.json')
 
-    logging.info("Latency on {URL}: {latency}".format(
+    server.app.logger.info("Latency on {URL}: {latency}".format(
         URL='https://hacker-news.firebaseio.com//v0/newstories.json', latency=newstories_ids.elapsed))
 
-    newstories_ids.json()
+    newstories_ids = newstories_ids.json()
     return newstories_ids
 
 # Sort position list based on number of comments
