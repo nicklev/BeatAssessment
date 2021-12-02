@@ -1,10 +1,14 @@
+import logging
 import requests
-import json
+import server
+from requests.sessions import HTTPAdapter, session
 
 MIN_USER_KARMA = 2413
 MAX_RESULTS = 50
 
 stories = {"stories": []}
+session = requests.Session()
+session.mount('https://', HTTPAdapter(pool_connections=10))
 
 
 def getStories():
@@ -24,15 +28,24 @@ def buildStories():
     newstories_ids = getNewStories()
 
     for story_id in newstories_ids:
-        item = requests.get(
-            'https://hacker-news.firebaseio.com/v0/item/{id}.json'.format(id=story_id)).json()
+        item = session.get(
+            'https://hacker-news.firebaseio.com/v0/item/{id}.json'.format(id=story_id))
 
+        logging.info("Latency on {URL}: {latency}".format(
+            URL='https://hacker-news.firebaseio.com/v0/item/{id}.json'.format(id=story_id), latency=item.elapsed))
+
+        item = item.json()
         username = item["by"]
         number_of_comments = item["descendants"]
         title = item["title"]
 
-        user = requests.get(
-            'https://hacker-news.firebaseio.com/v0/user/{id}.json'.format(id=username)).json()
+        user = session.get(
+            'https://hacker-news.firebaseio.com/v0/user/{id}.json'.format(id=username))
+
+        logging.info("Latency on {URL}: {latency}".format(
+            URL='https://hacker-news.firebaseio.com/v0/user/{id}.json'.format(id=username), latency=user.elapsed))
+
+        user = user.json()
         user_karma = user["karma"]
 
         if user_karma > MIN_USER_KARMA and count < MAX_RESULTS:
@@ -52,8 +65,13 @@ def buildStories():
 
 
 def getNewStories():
-    newstories_ids = requests.get(
-        'https://hacker-news.firebaseio.com//v0/newstories.json').json()
+    newstories_ids = session.get(
+        'https://hacker-news.firebaseio.com//v0/newstories.json')
+
+    logging.info("Latency on {URL}: {latency}".format(
+        URL='https://hacker-news.firebaseio.com//v0/newstories.json', latency=newstories_ids.elapsed))
+
+    newstories_ids.json()
     return newstories_ids
 
 # Sort position list based on number of comments
@@ -74,9 +92,7 @@ def insertionSort(position, number_of_comments, count):
 def fixPositions(position):
     index = 0
     for story in stories["stories"]:
-        i = 0
-        while i < len(position):
+        for i in range(len(position)):
             if position[i][1] == index:
                 story["position"] = i
-            i += 1
         index += 1
