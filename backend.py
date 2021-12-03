@@ -1,6 +1,6 @@
 import logging
 import requests
-import server
+import app
 from requests.sessions import HTTPAdapter, session
 
 MIN_USER_KARMA = 2413
@@ -33,7 +33,7 @@ def buildStories():
             item = session.get(
                 'https://hacker-news.firebaseio.com/v0/item/{id}.json'.format(id=story_id))
 
-            server.app.logger.info("Latency on {URL}: {latency}".format(
+            logging.info("Latency on {URL}: {latency}".format(
                 URL='https://hacker-news.firebaseio.com/v0/item/{id}.json'.format(id=story_id), latency=item.elapsed))
 
             item = item.json()
@@ -44,7 +44,7 @@ def buildStories():
             user = session.get(
                 'https://hacker-news.firebaseio.com/v0/user/{id}.json'.format(id=username))
 
-            server.app.logger.info("Latency on {URL}: {latency}".format(
+            logging.info("Latency on {URL}: {latency}".format(
                 URL='https://hacker-news.firebaseio.com/v0/user/{id}.json'.format(id=username), latency=user.elapsed))
 
             user = user.json()
@@ -65,10 +65,10 @@ def buildStories():
                 stories["stories"].append(story)
 
         except TypeError as e:
-            server.app.logger.error(e)
+            logging.error(e)
             continue
         except:
-            server.app.logger.error("Fatal error.")
+            logging.error("Fatal error.")
     fixPositions(position)
 
 
@@ -76,7 +76,7 @@ def getNewStories():
     newstories_ids = session.get(
         'https://hacker-news.firebaseio.com//v0/newstories.json')
 
-    server.app.logger.info("Latency on {URL}: {latency}".format(
+    logging.info("Latency on {URL}: {latency}".format(
         URL='https://hacker-news.firebaseio.com//v0/newstories.json', latency=newstories_ids.elapsed))
 
     newstories_ids = newstories_ids.json()
