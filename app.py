@@ -1,10 +1,11 @@
-from flask import Flask, request, json
 import backend
 import logging
 from multiprocessing import Value
 from logging.handlers import RotatingFileHandler
+from flask import Flask, request, json
 
 app = Flask(__name__)
+
 
 LOG_FILEPATH = 'application.log'
 
