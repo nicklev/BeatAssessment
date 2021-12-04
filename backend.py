@@ -1,18 +1,16 @@
 import logging
 import requests
-import app
 from requests.sessions import HTTPAdapter, session
 
 MIN_USER_KARMA = 2413
 MAX_RESULTS = 50
 
-stories = {"stories": []}
 session = requests.Session()
 session.mount('https://', HTTPAdapter(pool_connections=10))
 
 
 def getStories():
-    buildStories()
+    stories = buildStories()
     return stories
 
 # Creates the stories that will be returned to the user
@@ -23,8 +21,9 @@ def buildStories():
     # Two dimensional list.
     # Every row contains a list.
     # The first value refers to the number of comments and the second value to the position of this record in stories
+    stories = {"stories": []}
     position = []
-    count = 0
+    count = 1
     newstories_ids = getNewStories()
 
     for story_id in newstories_ids:
@@ -50,7 +49,7 @@ def buildStories():
             user = user.json()
             user_karma = user["karma"]
 
-            if user_karma > MIN_USER_KARMA and count < MAX_RESULTS:
+            if user_karma > MIN_USER_KARMA and count <= MAX_RESULTS:
 
                 if len(position) == 0:
                     position.append([number_of_comments, count])
@@ -69,7 +68,9 @@ def buildStories():
             continue
         except:
             logging.error("Fatal error.")
-    fixPositions(position)
+
+    stories_fixed_position = fixPositions(position, stories)
+    return stories_fixed_position
 
 
 def getNewStories():
@@ -97,10 +98,12 @@ def insertionSort(position, number_of_comments, count):
 # based on the number of comments
 
 
-def fixPositions(position):
-    index = 0
+def fixPositions(position, stories):
+    # "index" is the index of the "story" inside "stories" dictionary
+    index = 1
     for story in stories["stories"]:
         for i in range(len(position)):
             if position[i][1] == index:
-                story["position"] = i
+                story["position"] = i+1
         index += 1
+    return stories
