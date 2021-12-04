@@ -13,7 +13,7 @@ In order to deploy the image in a K8s environment use deploy-beatassessment.yaml
 
 The above command will create a deployment and a Nodeport K8s service.
 **You will need internet access from your K8s cluster to download the image from Dockerhub.
-If you don't have internet connection then create an image to the locan Docker repository by running:**
+If you don't have internet connection then create an image to a local Docker repository by running:**
 `docker build -t nikosleventis/beatassessment:v0.6`
 
 ## Access the application
@@ -25,7 +25,7 @@ This command will reveal the Nodeport Cluster IP.
 Then you can access the applicatin like this:
 `curl http://<your-Nodeport-ClusterIP>:5000/stories`
 
-**The application takes arround 3 minutes to run.**
+**_The application takes arround 3 minutes to run._**
 
 ## Implementation
 
@@ -37,13 +37,13 @@ At first a call to HackerNews API is made to receive the 500 latest stories. The
 In order to reduce overall response time of the application I use a Session object with `pool_connections=10`. This way the TCP connections to HackerNews API persist.
 
 Regarding `position` I used the Insertion Sort algorithm and a two dimensional position list.
-The position list contains in each row a list with two values that are associated with a particular story. In the first column, the number of comments are stored while in the second column the index that the story has in the TOP 50 stories is stored.
+The position list contains in each row a list with two values that are associated with a particular story. In the first column, the number of comments are stored while in the second column the index that the story has in the TOP 50 stories.
 For every new story that belongs to the TOP 50 the Insertion Sort algorithm is called to sort the position list according to the number of comments.
 
 At the end, when the `stories` dictionary contains the TOP 50 stories the `fixPositions` function is called to assign the correct position to every story.
 Position assignment can only happen at the end when the TOP 50 stories are selected. Only then you know the number of comments of all stories. My implementation doesn't wait until all stories are collected. Position list is sorted every time a new story is added using the Insertion Sort algorithm.
 
-Monitoring metrics like HackerNews API request latency for each request and the total number of incoming requests served are reported using logging.
+Monitoring metrics like **HackerNews API request latency for each request** and **the total number of incoming requests served** are reported using logging.
 The logs are streamed to the stdout where the Kubernetes can access them.
 You can access these metrics running: `kubectl logs <pod-name>`
 
