@@ -49,6 +49,8 @@ You can access these metrics running: `kubectl logs <pod-name>`
 
 ## Further ideas
 
+### Response time
+
 The application takes arround 3 minutes to execute. This is due to the high number of GET requests that my application does to the HackerNews API.
 Some general ideas that could reduce the overall response time are:
 
@@ -56,7 +58,13 @@ Some general ideas that could reduce the overall response time are:
 2. Add more threads so that requests execute in parallel.
 3. Use another sorting algorithm.
 
-Regarding monitoring we could use:
+### Monitoring
+
+For monitoring we could use:
 
 1. Code instrumentation and send the metrics to a monitoring tool like Prometheus.
 2. Use a log extractor like Fluentd to extract the logs.
+
+### Deployment
+
+For deployment I would use a private image repository.
