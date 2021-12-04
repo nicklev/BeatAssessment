@@ -1,5 +1,6 @@
 import backend
 import logging
+import sys
 from multiprocessing import Value
 from logging.handlers import RotatingFileHandler
 from flask import Flask, request, json
@@ -7,20 +8,7 @@ from flask import Flask, request, json
 app = Flask(__name__)
 
 
-LOG_FILEPATH = 'application.log'
-
-
-# h = logging.handlers.RotatingFileHandler(
-#     LOG_FILEPATH, 'a', maxBytes=5242880, backupCount=1)
-# h.setLevel(logging.INFO)
-
-# f = logging.Formatter(
-#     fmt='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-
-# h.setFormatter(f)
-# app.logger.addHandler(h)
-
-logging.basicConfig(filename=LOG_FILEPATH, level=logging.INFO,
+logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
 request_count = Value('i', 0)
