@@ -11,25 +11,25 @@ The v0.6 is the latest stable image and it can be used to production.
 In order to deploy the image in a K8s environment use deploy-beatassessment.yaml and run the following command:
 `kubectl apply -f deploy-beatassessment.yaml`
 
-The above command will create a deployment and a Nodeport K8s service.
+The above command will create a deployment and a NodePort K8s service.
 **You will need internet access from your K8s cluster to download the image from Dockerhub.
 If you don't have internet connection then create an image to a local Docker repository by running:**
 `docker build -t nikosleventis/beatassessment:v0.6`
 
 ## Access the application
 
-Application is hosted on port 5000 and is available through a Nodeport service.
+Application is hosted on port 5000 and is available through a NodePort service.
 Before accessing the application run:
 `kubectl get services`
-This command will reveal the Nodeport Cluster IP.
+This command will reveal the NodePort Cluster IP.
 Then you can access the applicatin like this:
-`curl http://<your-Nodeport-ClusterIP>:5000/stories`
+`curl http://<your-NodePort-ClusterIP>:5000/stories`
 
 **_The application takes arround 3 minutes to run._**
 
 ## Implementation
 
-This is a Python application that uses Flask framework.
+This is a Python application that uses Flask framework. Git was used as the version control system and `test` is the branch under which I developed the code. On the final stage `test` was merged to `main`.
 Flask spins up a web server that listens for GET /stories requests on port 5000.
 
 All logic is handled by `buildStories()` function on backend.py file.
@@ -45,7 +45,9 @@ Position assignment can only happen at the end when the TOP 50 stories are selec
 
 Monitoring metrics like **HackerNews API request latency for each request** and **the total number of incoming requests served** are reported using logging.
 The logs are streamed to the stdout where the Kubernetes can access them.
-You can access these metrics running: `kubectl logs <pod-name>`
+You can access these metrics running: `kubectl logs <pod-name>`.
+
+For the deployment phase, I use a Dockerfile to create a Docker image and a yaml file on which I configure a K8s deployment and a service. The yaml file is called `deploy-beatassessment.yaml`. For the deployment part, I have set requests and limits so that the pod won't utillize all of the system's resources. Regarding the service part, I have declared a NodePort service that listens to port 5000.
 
 ## Further ideas
 
@@ -68,3 +70,4 @@ For monitoring we could use:
 ### Deployment
 
 For deployment I would use a private image repository.
+Also for the Kubernetes service I would choose a LoadBalancer type instead of a NodePort.
