@@ -8,7 +8,7 @@ This is a project regarding my application to Beat for the position of Site Reli
 
 The application is production ready so the code is packaged as a Docker image and is stored in my public repository at Dockerhub (nikosleventis/beatassessment).
 The v0.6 is the latest stable image and it can be used to production.
-In order to deploy the image in a K8s environment use deploy-beatassessment.yaml and run the following command:
+In order to deploy the image in a K8s environment use the deploy-beatassessment.yaml and run the following command:
 `kubectl apply -f deploy-beatassessment.yaml`
 
 The above command will create a deployment and a NodePort K8s service.
@@ -56,8 +56,8 @@ For the deployment phase, I use a Dockerfile to create a Docker image and a yaml
 The application takes arround 3 minutes to execute. This is due to the high number of GET requests that my application does to the HackerNews API.
 Some general ideas that could reduce the overall response time are:
 
-1. Increase the number of connection pool.
-2. Add more threads so that requests execute in parallel.
+1. Increase the number of the connection pool.
+2. Add more threads so that requests are executed in parallel.
 3. Use another sorting algorithm.
 
 ### Monitoring
