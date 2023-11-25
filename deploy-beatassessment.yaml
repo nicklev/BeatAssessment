@@ -14,6 +14,10 @@ spec:
       labels:
         app: beatassessment
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 2000
       containers:
       - name: beatassessment
         image: nikosleventis/beatassessment:v0.6
@@ -26,6 +30,8 @@ spec:
             cpu: "500m"
         ports:
         - containerPort: 5000
+        securityContext:
+          allowPrivilegeEscalation: false
 ---
 apiVersion: v1
 kind: Service
